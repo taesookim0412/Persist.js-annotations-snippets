@@ -1,0 +1,56 @@
+<div class="wrapper">
+    <div class="col-6">
+        <div class="spacer"></div>
+        <button (click)="downloadMarkerMasks()">Download All Markers</button><br>
+        <div class="spacer"></div>
+        <button (click)="downloadMarkerIdMasks()">Download All Marker IDs</button><br>
+        <div class="spacer"></div>
+        <button (click)="downloadColorMasks()">Download All Color Masks</button><br>
+        <div class="spacer"></div>
+        <button (click)="downloadBoundingBoxes()">Download All Bounding Boxes</button><br>
+        <div class="spacer"></div>
+        <form enctype='multipart/form-data'>
+            Overwrite Images: Zip file with imgs folder containing the images. (zip -> imgs/img1.jpg)<br>
+            <input #newImgsZip accept="application/x-zip-compressed" type="file">
+        </form>
+        <div class="shadow" [style.width.%]="100">
+            <div [style.width.%]="100" [style.z-index]="warning ? 1 : -1" class='warning' [style.opacity]="warning ? 1 : 0">
+                {{warning_msg}}<br>
+                <button (click)="uploadImgsZip();warning=false;">OVERWRITE</button><button (click)="warning=false;">Cancel</button>
+            </div>
+            <button
+                (click)="warning=true;warning_msg='WARNING: Overwrite all images? This will delete all annotations!'">Upload
+                Images (ZIP)</button><br>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="spacer--small"></div>
+        Stats: <br>
+        <div class="stat__box">Image counts<br>
+            <div class="stat__left">Imgs: </div>
+            <div class="stat__right">{{(fileService.imgFiles | async).length}}</div> <br>
+            <div class="stat__left">Markers: </div>
+            <div class="stat__right">{{(fileService.markerMaskFiles | async).size}}</div> <br>
+            <div class="stat__left">MarkerIds: </div>
+            <div class="stat__right">{{(fileService.markerIdMaskFiles | async).size}} </div><br>
+            <div class="stat__left">ColorMasks: </div>
+            <div class="stat__right">{{(fileService.colorMaskFiles | async).size}} </div><br>
+            <div class="stat__left">Bounding Boxes: </div>
+            <div class="stat__right">??</div><br>
+        </div>
+        <div class="stat__box">
+            <div class="stat__left">Remaining Clear All Count: </div>
+            <div class="stat__right">
+                <input type="text" [(ngModel)]="limitsService.clearAllLimit">
+                <button (click)="limitsService.setClearAll()">Set New Clear All Limit</button>
+            </div><br>
+            <div class="stat__left">Image Front Index: </div>
+            <div class="stat__right">
+                <input type="text" [(ngModel)]="fileService.imgFront">
+                <button (click)="setImgFront(fileService.imgFront)">Set New Image Front Index</button>
+            </div><br>
+            <button (click)="resetImgFront()">Reset Image Front</button>
+        </div>
+
+    </div>
+</div>

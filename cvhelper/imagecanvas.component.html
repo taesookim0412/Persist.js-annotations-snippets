@@ -1,0 +1,100 @@
+<div [style.width.px]="displayWidth | async" [style.height.px]="displayHeight | async" class="wrapper">
+    <div *ngIf="(_fileManager.status | async) == 2 || (_fileManager.status | async) == 6 || (_fileManager.status | async) == 7"
+        class="shadowAlert">
+        <!-- Alert Changes -->
+        <div *ngIf="(_fileManager.status | async) == 2" class="alert" [style.height.%]="33" [style.width.%]="80">
+            <div class="topbar">
+                <div class="spacer"></div>
+                <button class="xmark" [disabled]="(_fileManager.status | async) == 3 ? _uiService.ST_DISABLED : false"
+                    (click)="_fileManager.status.next(4)">X</button>
+            </div>
+            Save Changes? All changes will be discarded!<br>
+            <button [disabled]="(_fileManager.status | async) == 3 ? _uiService.ST_DISABLED : false"
+                (click)="_fileManager.status.next(5)">Discard</button><button
+                [disabled]="(_fileManager.status | async) == 3 ? _uiService.ST_DISABLED : false"
+                (click)="_fileManager.status.next(3)">Save</button>
+        </div>
+        <!-- Reload Image -->
+        <div *ngIf="(_fileManager.status | async) == 6" class="alert" [style.height.%]="33" [style.width.%]="80">
+            <div class="topbar">
+                <div class="spacer"></div>
+                <button class="xmark" [disabled]="(_fileManager.status | async) == 3 ? _uiService.ST_DISABLED : false"
+                    (click)="_fileManager.status.next(4)">X</button>
+            </div>
+            Reload image? All new changes will be discarded!<br>
+            <button [disabled]="_uiService.ST_DISABLED" (click)="_fileManager.status.next(1)">Reload</button>
+        </div>
+        <!-- Clear All -->
+        <div *ngIf="(_fileManager.status | async) == 7" class="alert" [style.height.%]="33" [style.width.%]="80">
+            <div class="topbar">
+                <div class="spacer"></div>
+                <button class="xmark" [disabled]="(_fileManager.status | async) == 3 ? _uiService.ST_DISABLED : false"
+                    (click)="_fileManager.status.next(4)">X</button>
+            </div>
+            Clear Entire Image? <br>
+            Warning: Only {{limitsService.clearAllLimit}} times allowed!<br>
+            <button [disabled]="_uiService.ST_DISABLED" (click)="_fileManager.status.next(8)">Clear All</button>
+        </div>
+    </div>
+    <div *ngIf="_uiService.fadingError" class="shadowAlert">
+        <div class="alert col-8 alert--fading">
+            Bounding boxes found: <br>
+            <div *ngIf="_uiService.fadingTemplate_boundingBox" (click)="_uiService.disableFadingMessage_bb()">
+                <div *ngFor="let len of _uiService.boundingBoxLens; index as i">
+                    <div style="width:50%;display:inline-block;text-align:right">{{_uiService.labelArray[i+1].name}}:</div>
+                    <div style="width:50%;display:inline-block;text-align:left">{{len}}/{{limitsService.labelBbLimitArray[i]}}</div>
+                </div>
+            </div>
+            <div class="spacer"></div>
+        </div>
+
+    </div>
+    <div class="imagecanvas" [style.width.px]="displayWidth | async" [style.height.px]="displayHeight | async"
+        #imgcanvasparent>
+        <canvas [style.opacity]="_uiService.canvas_imgOpacity | async" id="canvas--img" #imgcanvas></canvas>
+        <canvas [style.opacity]="_uiService.canvas_markerOpacity | async" id="canvas--marker" #markercanvas></canvas>
+        <canvas [style.opacity]="_uiService.canvas_markerIdOpacity | async" id="canvas--markerid"
+            #markeridcanvas></canvas>
+        <canvas [style.opacity]="_uiService.canvas_watershedOpacity | async" id="canvas--watershed"
+            #watershedcanvas></canvas>
+        <canvas #bbcanvas></canvas>
+        <canvas [style.opacity]="_uiService.canvas_colorShow[i] | async"
+            *ngFor="let label of _uiService.labelArray; index as i" #colorcanvases></canvas>
+
+        <!-- Cursor goes after the canvas in order to not solve an issue with it instantiating and adding an offset to its own position. 
+    If want to solve this issue, try to set border programmatically and initialize it to a zero dimension. Probably not a good idea.-->
+        <div id="cursor" style="z-index:1;" [style.width.px]="cursorEvents.cursorDiameter"
+            [style.height.px]="cursorEvents.cursorDiameter" [style.top.px]="cursorEvents.cursorTop"
+            [style.left.px]="cursorEvents.cursorLeft"></div>
+
+
+    </div><br>
+</div>
+<div>
+    <!-- Action index: {{undoHelper.actionIndex}} <br>
+    Last undo keypoint: {{undoHelper.keypointsUndoStack[undoHelper.keypointsUndoStack.length - 1]}} <br>
+    Redo keypoints: {{undoHelper.keypointsRedoStack}} <br> -->
+    <!-- <button [disabled]="_uiService.ST_DISABLED" (click)="_uiService.safeCall(callWatershed, thisElementRef)">Watershed</button> -->
+    <!-- <div class="imagecanvas2" *ngIf="markerCx && colorCanvasCxes.length >= 3"> -->
+
+        <!-- {{markerCx.lineWidth}}, {{colorCanvasCxes[0].lineWidth}} {{colorCanvasCxes[1].lineWidth}} {{colorCanvasCxes[2].lineWidth}} <br>
+{{markerCx.strokeStyle}}, {{colorCanvasCxes[0].strokeStyle}} {{colorCanvasCxes[1].strokeStyle}} {{colorCanvasCxes[2].strokeStyle}} <br><br> -->
+        <!-- <app-matrixdisplay *ngIf="markerArray" [matrix]="markerArray" [channels]="4"></app-matrixdisplay>
+        <app-matrixdisplay *ngIf="watershedRGBAArray" [matrix]="watershedRGBAArray" [channels]="4">
+        </app-matrixdisplay> -->
+
+        <!-- Undo Debugging Template -->
+        <!-- <button (click)="undoHelper.showUndo()">log undostack</button>
+    <button (click)="undoHelper.undo()">perform undo stack</button>
+    <button (click)="undoHelper.showRedo()">log redostack</button>
+    <button (click)="undoHelper.redo()">perform redo stack</button>
+    <br>
+    <button (click)="undoHelper.showKeypointsUndo()">log keypoints undostack</button>
+    <button (click)="undoHelper.showKeypointsRedo()">log keypoints redostack</button>
+    <button (click)="undoHelper.showPriorityKeypointsUndo()">log priority undostack</button>
+    <button (click)="undoHelper.showPriorityKeypointsRedo()">log keypoints redostack</button> -->
+
+
+
+    <!-- </div> -->
+</div>
